@@ -5,6 +5,7 @@ import Register from "./pages/Register";
 import Single from "./pages/Single";
 import Write from "./pages/Write";
 import Layout from "./components/Layout";
+import "./style.scss"
 
 const router = createBrowserRouter([
   {
