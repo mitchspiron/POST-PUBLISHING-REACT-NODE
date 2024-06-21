@@ -3,6 +3,8 @@ import { Link, useNavigate } from "react-router-dom";
 import { BASE_URL } from "../api/api";
 import axios from "axios";
 
+console.log("BASE_URL", BASE_URL);
+
 const Register = () => {
   const [inputs, setInputs] = useState({
     username: "",
