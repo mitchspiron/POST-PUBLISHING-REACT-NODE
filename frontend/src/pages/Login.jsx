@@ -1,7 +1,5 @@
 import React, { useContext, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { BASE_URL } from "../api/api";
-import axios from "axios";
 import { AuthContext } from "../context/auth.context";
 
 const Login = () => {

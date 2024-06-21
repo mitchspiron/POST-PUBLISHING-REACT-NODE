@@ -1,32 +1,72 @@
-import React from "react";
-import UserImage from "../images/user.jpg";
+import React, { useContext, useEffect, useState } from "react";
 import EditImage from "../images/edit.png";
 import DeleteImage from "../images/delete.png";
-import { Link } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import Menu from "../components/Menu";
+import axios from "axios";
+import moment from "moment";
+import { AuthContext } from "../context/auth.context";
+import { BASE_URL } from "../api/api";
 
 const Single = () => {
+  const [post, setPost] = useState({});
+
+  const location = useLocation();
+
+  const navigate = useNavigate();
+
+  // Extract the post ID from the current URL.
+  const postId = location.pathname.split("/")[2];
+
+  const { currentUser } = useContext(AuthContext);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const res = await axios.get(`${BASE_URL}/post/${postId}`);
+        setPost(res.data);
+      } catch (err) {
+        console.log(err);
+      }
+    };
+    fetchData();
+  }, [postId]);
+
+  const handleDelete = async () => {
+    try {
+      await axios.delete(`${BASE_URL}/post/${postId}`);
+      navigate("/");
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
+  const getText = (html) => {
+    const doc = new DOMParser().parseFromString(html, "text/html");
+    return doc.body.textContent;
+  };
+
   return (
     <div className="single">
       <div className="content">
-        <img
-          src="https://images.pexels.com/photos/6489663/pexels-photo-6489663.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2"
-          alt="post cover"
-        />
+        <img src={`${post?.img}`} alt="post cover" />
         <div className="user">
-          <img src={UserImage} alt="user" />
+          {post.userImg && <img src={post.userImg} alt="user" />}
           <div className="info">
-            <span>Santiago</span>
-            <p>Posted 2 days ago</p>
+            <span>{post.username}</span>
+            <p>Posted {moment(post.date).fromNow()}</p>
           </div>
-          <div className="edit">
-            <Link to={`/write?edit=2`}>
-              <img src={EditImage} alt="edit" />
-            </Link>
-            <img src={DeleteImage} alt="delete" />
-          </div>
+          {currentUser.username === post.username && (
+            <div className="edit">
+              <Link to={`/write?edit=2`} state={post}>
+                <img src={EditImage} alt="edit" />
+              </Link>
+              <img onClick={handleDelete} src={DeleteImage} alt="delete" />
+            </div>
+          )}
         </div>
-        <h1>Lorem ipsum dolor sit amet consectetur adipisicing elit</h1>
+        <h1>{post.title}</h1>
+        <i>"{getText(post.description)}"</i>
         <p>
           Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
           eiusmod tempor incididunt ut labore et dolore magna aliqua.
@@ -84,7 +124,7 @@ const Single = () => {
           praesent elementum facilisis leo vel fringilla est ullamcorper eget.
         </p>
       </div>
-      <Menu />
+      <Menu cat={post.cat} />
     </div>
   );
 };
