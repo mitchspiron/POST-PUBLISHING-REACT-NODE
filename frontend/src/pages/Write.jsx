@@ -1,14 +1,85 @@
 import React, { useState } from "react";
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
+import axios from "axios";
+import { useLocation, useNavigate } from "react-router-dom";
+import moment from "moment";
+import { BASE_URL } from "../api/api";
 
 const Write = () => {
-  const [value, setValue] = useState("");
+  // will be used to check if we are in writing o edit mode
+  const state = useLocation().state;
+  //console.log("STATE",state)
+
+  const [value, setValue] = useState(state?.description || "");
+  const [title, setTitle] = useState(state?.title || "");
+  const [file, setFile] = useState(null);
+  const [cat, setCat] = useState(state?.cat || "");
+
+  const categories = [
+    { value: "art", label: "Art" },
+    { value: "science", label: "Science" },
+    { value: "technology", label: "Technology" },
+    { value: "cinema", label: "Cinema" },
+    { value: "design", label: "Design" },
+    { value: "food", label: "Food" },
+  ];
+
+  const navigate = useNavigate();
+
+  const upload = async () => {
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+
+      const res = await axios.post(`${BASE_URL}/upload`, formData);
+
+      // Return the filename of the uploaded file
+      return res.data;
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
+  const handleClick = async (e) => {
+    e.preventDefault();
+
+    // Upload the image and get the filename
+    const imgUrl = await upload();
+
+    try {
+      // Send a PUT request to update a post if the location state is defined (writing),
+      // otherwise send a POST request to create a new post
+      state
+        ? await axios.put(`${BASE_URL}/post/${state.id}`, {
+            title,
+            description: value,
+            cat,
+            img: file ? imgUrl : "",
+          })
+        : await axios.post(`${BASE_URL}/post/`, {
+            title,
+            description: value,
+            cat,
+            img: file ? imgUrl : "",
+            date: moment(Date.now()).format("YYYY-MM-DD HH:mm:ss"),
+          });
+
+      navigate("/");
+    } catch (err) {
+      console.log(err);
+    }
+  };
 
   return (
     <div className="add">
       <div className="content">
-        <input type="text" placeholder="title" />
+        <input
+          type="text"
+          placeholder="title"
+          value={title}
+          onChange={setTitle}
+        />
         <div className="editor-container">
           <ReactQuill
             className="editor"
@@ -21,47 +92,42 @@ const Write = () => {
       <div className="menu">
         <div className="item">
           <h1>Publish</h1>
-          <spna>
+          <span>
             <b>Status: </b> Draft
-          </spna>
+          </span>
           <span>
             <b>Visibility: </b> Public
           </span>
-          <input style={{ display: "none" }} type="file" id="file" />
+          <input
+            style={{ display: "none" }}
+            type="file"
+            id="file"
+            name=""
+            onChange={(e) => setFile(e.target.files[0])}
+          />
           <label className="file" htmlFor="file">
             Upload Image
           </label>
           <div className="buttons">
             <button>Save as a draft</button>
-            <button>Update</button>
+            <button onClick={handleClick}>Update</button>
           </div>
         </div>
         <div className="item">
           <h1>Category</h1>
-          <div className="category">
-            <input type="radio" name="cat" value="art" id="art" />
-            <label htmlFor="art">Art</label>
-          </div>
-          <div className="category">
-            <input type="radio" name="cat" value="science" id="science" />
-            <label htmlFor="science">Science</label>
-          </div>
-          <div className="category">
-            <input type="radio" name="cat" value="technology" id="technology" />
-            <label htmlFor="technology">Technology</label>
-          </div>
-          <div className="category">
-            <input type="radio" name="cat" value="cine" id="cinema" />
-            <label htmlFor="cinema">Cinema</label>
-          </div>
-          <div className="category">
-            <input type="radio" name="cat" value="desing" id="desing" />
-            <label htmlFor="desing">Design</label>
-          </div>
-          <div className="category">
-            <input type="radio" name="cat" value="food" id="food" />
-            <label htmlFor="food">Food</label>
-          </div>
+          {categories.map((category) => (
+            <div className="category" key={category.value}>
+              <input
+                type="radio"
+                checked={cat === category.value}
+                name="cat"
+                value={category.value}
+                id={category.value}
+                onChange={(e) => setCat(e.target.value)}
+              />
+              <label htmlFor={category.value}>{category.label}</label>
+            </div>
+          ))}
         </div>
       </div>
     </div>

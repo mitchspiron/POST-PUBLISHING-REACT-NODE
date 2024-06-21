@@ -5,6 +5,7 @@ import "./db/db.js";
 import router from "./routes/index.js";
 import cookieParser from "cookie-parser";
 import { upload } from "./utils/multer.js";
+import { join } from "path";
 
 dotenv.config();
 
@@ -27,6 +28,8 @@ app.post("/upload", upload.single("file"), function (req, res) {
   const file = req.file;
   res.status(200).json(file.filename);
 });
+
+app.use("/images", express.static(join(process.cwd(), "src/uploads/images")));
 
 const port = process.env.PORT || 8000;
 
