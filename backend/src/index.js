@@ -4,6 +4,7 @@ import cors from "cors";
 import "./db/db.js";
 import router from "./routes/index.js";
 import cookieParser from "cookie-parser";
+import { upload } from "./utils/multer.js";
 
 dotenv.config();
 
@@ -21,6 +22,11 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 
 app.use("/", router);
+
+app.post("/upload", upload.single("file"), function (req, res) {
+  const file = req.file;
+  res.status(200).json(file.filename);
+});
 
 const port = process.env.PORT || 8000;
 
