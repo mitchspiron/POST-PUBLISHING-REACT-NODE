@@ -13,7 +13,19 @@ const app = express();
 
 const corsOptions = {
   origin: process.env.FRONT_SERVER,
+  credentials: true,
 };
+
+app.use((req, res, next) => {
+  res.header("Access-Control-Allow-Origin", process.env.URL_FRONT);
+  res.header("Access-Control-Allow-Methods", "GET,PUT,POST,DELETE");
+  res.header(
+    "Access-Control-Allow-Headers",
+    "Access-Control-Allow-Headers, Origin,Accept, X-Requested-With, Content-Type, Access-Control-Request-Method, Access-Control-Request-Headers, Authorization"
+  );
+  res.header("Access-Control-Allow-Credentials", "true");
+  next();
+});
 
 app.use(cors(corsOptions));
 

@@ -51,19 +51,31 @@ const Write = () => {
       // Send a PUT request to update a post if the location state is defined (writing),
       // otherwise send a POST request to create a new post
       state
-        ? await axios.put(`${BASE_URL}/post/${state.id}`, {
-            title,
-            description: value,
-            cat,
-            img: file ? imgUrl : "",
-          })
-        : await axios.post(`${BASE_URL}/post/`, {
-            title,
-            description: value,
-            cat,
-            img: file ? imgUrl : "",
-            date: moment(Date.now()).format("YYYY-MM-DD HH:mm:ss"),
-          });
+        ? await axios.put(
+            `${BASE_URL}/post/${state.id}`,
+            {
+              title,
+              description: value,
+              cat,
+              img: file ? imgUrl : "",
+            },
+            {
+              withCredentials: true,
+            }
+          )
+        : await axios.post(
+            `${BASE_URL}/post/`,
+            {
+              title,
+              description: value,
+              cat,
+              img: file ? imgUrl : "",
+              date: moment(Date.now()).format("YYYY-MM-DD HH:mm:ss"),
+            },
+            {
+              withCredentials: true,
+            }
+          );
 
       navigate("/");
     } catch (err) {

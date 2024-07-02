@@ -75,6 +75,7 @@ export const deletePost = (req, res) => {
 export const updatePost = (req, res) => {
   // Check if the user is authenticated
   const token = req.cookies.access_token;
+
   if (!token) return res.status(401).json("Not authenticated!");
 
   // Verify the token validity
@@ -86,7 +87,12 @@ export const updatePost = (req, res) => {
     const q =
       "UPDATE posts SET `title`=?,`description`=?,`img`=?,`cat`=? WHERE `id` = ? AND `uid` = ?";
 
-    const values = [req.body.title, req.body.description, req.body.img, req.body.cat];
+    const values = [
+      req.body.title,
+      req.body.description,
+      req.body.img,
+      req.body.cat,
+    ];
 
     db.query(q, [...values, postId, userInfo.id], (err, data) => {
       if (err) return res.status(500).json(err);

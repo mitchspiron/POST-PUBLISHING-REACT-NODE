@@ -48,6 +48,8 @@ export const login = (req, res) => {
       })
       .status(200)
       .json(other);
+
+    //console.log("🚀 ~ login ~ cookie set:", req.cookies.access_token);
   });
 };
 
@@ -59,4 +61,5 @@ export const logout = (req, res) => {
     })
     .status(200)
     .json("User has been logged out.");
+  //console.log("🚀 ~ logout ~ cookie set:", req.cookies.access_token);
 };
